@@ -20,6 +20,13 @@ dependencies {
     implementation 'org.slf4j:slf4j-simple:1.7.31'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.4'
 
+    // https://mvnrepository.com/artifact/org.mockito/mockito-core
+    testImplementation 'org.mockito:mockito-core:4.2.0'
+
+    // https://mvnrepository.com/artifact/com.konghq/unirest-java
+    implementation 'com.konghq:unirest-java:3.13.4'
+
+
 
 }
 

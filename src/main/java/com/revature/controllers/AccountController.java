@@ -37,6 +37,7 @@ public class AccountController {
     public void handleGetAll(Context ctx){
         List<Account> accounts = accountService.getAll();
         ctx.json(accounts);
+        ctx.status(200);
     }
 
 
