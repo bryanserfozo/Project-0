@@ -1,6 +1,7 @@
 package com.revature.controllers;
 
 import com.revature.models.Person;
+import com.revature.services.EncryptionService;
 import com.revature.services.PersonService;
 import io.javalin.http.Context;
 import io.javalin.http.ForbiddenResponse;
@@ -9,11 +10,13 @@ import io.javalin.http.UnauthorizedResponse;
 public class AuthController {
 
     private final PersonService personService = new PersonService();
+    private final EncryptionService encryptionService = new EncryptionService();
 
     public void authenticateLogin(Context ctx){
 
         String username = ctx.formParam("username");
-        String password = ctx.formParam("password");
+        String passwordParam = ctx.formParam("password");
+        String password = encryptionService.encrypt(passwordParam);
 
         Person person =  personService.getByUsernameAndPassword(username, password);
 

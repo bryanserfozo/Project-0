@@ -2,6 +2,7 @@ package com.revature.controllers;
 
 import com.revature.models.Person;
 import com.revature.models.Type;
+import com.revature.services.EncryptionService;
 import com.revature.services.PersonService;
 import io.javalin.http.Context;
 import io.javalin.http.ForbiddenResponse;
@@ -12,6 +13,7 @@ import java.util.List;
 public class PersonController {
 
     private final PersonService personService = new PersonService();
+    private final EncryptionService encryptionService = new EncryptionService();
 
     public void handleGetAll(Context ctx) {
         List<Person> people = personService.getAll();
@@ -59,8 +61,10 @@ public class PersonController {
         String userParam = ctx.pathParam("username");
         Person personToUpdate = personService.getByUsername(userParam);
 
-        String oldpass = ctx.formParam("old password");
-        String newpass = ctx.formParam("new password");
+        String oldPassParam = ctx.formParam("old password");
+        String oldpass = encryptionService.encrypt(oldPassParam);
+        String newPassParam = ctx.formParam("new password");
+        String newpass = encryptionService.encrypt(newPassParam);
 
         String authHeader = ctx.header("Authorization");
         String[] authParts = authHeader.split("-");
@@ -94,8 +98,9 @@ public class PersonController {
             String emailParam = ctx.formParam("email");
             String userParam = ctx.formParam("username");
             String passParam = ctx.formParam("password");
+            String password = encryptionService.encrypt(passParam);
 
-            boolean success = personService.createPerson(firstParam, lastParam, emailParam, userParam, passParam);
+            boolean success = personService.createPerson(firstParam, lastParam, emailParam, userParam, password);
 
             // prepare response
             if (success) {
@@ -117,8 +122,9 @@ public class PersonController {
         String emailParam = ctx.formParam("email");
         String userParam = ctx.formParam("username");
         String passParam = ctx.formParam("password");
+        String password = encryptionService.encrypt(passParam);
 
-        boolean success = personService.createPerson(type, firstParam, lastParam, emailParam, userParam, passParam);
+        boolean success = personService.createPerson(type, firstParam, lastParam, emailParam, userParam, password);
 
         // prepare response
         if (success) {

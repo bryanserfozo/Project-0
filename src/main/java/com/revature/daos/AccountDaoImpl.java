@@ -50,7 +50,7 @@ public class AccountDaoImpl implements AccountDao{
     @Override
     public List<Account> getAllAccountsByPerson(Person p) {
         String sql = "select * from {oj account left join person on " +
-                "person.id = account.customerID where person.username = " + "?" +" } ";
+                "person.id = account.customerID where person.username = ? } ";
         List<Account> accounts = new ArrayList<>();
 
         try (Connection c = ConnectionUtil.getConnection();){
