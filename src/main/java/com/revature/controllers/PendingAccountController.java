@@ -1,6 +1,7 @@
 package com.revature.controllers;
 
 
+import com.revature.loggingSingleton.LoggingSingleton;
 import com.revature.models.Account;
 import com.revature.models.PendingAccount;
 import com.revature.models.Person;
@@ -16,6 +17,7 @@ public class PendingAccountController {
     private final PendingAccountService pas = new PendingAccountService();
     private final AccountService as = new AccountService();
     private final PersonService ps = new PersonService();
+    private final LoggingSingleton logger = LoggingSingleton.getLogger();
 
     public void handleGetAll(Context ctx) {
         List<PendingAccount> pa = pas.getAll();
@@ -36,18 +38,23 @@ public class PendingAccountController {
             boolean second = pas.deletePendingAccount(pa);
             if(first && second){
                 success = true;
+                logger.info(ps.getByUsername(username).getFirst() + " "+
+                        ps.getByUsername(username).getLast()+ " has been approved for a new account.");
             }
             else{
                 success = false;
             }
         } else if (decision.equals("denied")){
             success = pas.deletePendingAccount(pa);
+            logger.info(ps.getByUsername(username).getFirst() + " "+
+                    ps.getByUsername(username).getLast()+ " has been denied for a new account.");
         } else{
             success = false;
         }
 
         if (success) {
             ctx.status(201);
+
         } else {
             ctx.status(400);
         }
@@ -61,6 +68,8 @@ public class PendingAccountController {
 
         if (success) {
             ctx.status(201);
+            logger.info(ps.getByUsername(username).getFirst() + " "+
+                    ps.getByUsername(username).getLast()+ " has applied for a new account.");
         } else {
             ctx.status(400);
         }

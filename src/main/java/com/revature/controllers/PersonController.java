@@ -1,5 +1,6 @@
 package com.revature.controllers;
 
+import com.revature.loggingSingleton.LoggingSingleton;
 import com.revature.models.Person;
 import com.revature.models.Type;
 import com.revature.services.EncryptionService;
@@ -14,6 +15,7 @@ public class PersonController {
 
     private final PersonService personService = new PersonService();
     private final EncryptionService encryptionService = new EncryptionService();
+    private final LoggingSingleton logger = LoggingSingleton.getLogger();
 
     public void handleGetAll(Context ctx) {
         List<Person> people = personService.getAll();
@@ -23,12 +25,13 @@ public class PersonController {
     public void handleGetOne(Context ctx) {
         String userParam = ctx.pathParam("username");
         Person p = personService.getByUsername(userParam);
+        p.setPassword(encryptionService.encrypt(p.getPassword()));
 
         String authHeader = ctx.header("Authorization");
         String[] authParts = authHeader.split("-");
 
         if (authHeader != null) {
-            if (authParts[0].equals("ADMIN")) {
+            if (authParts[0].equals("ADMIN") || authParts[0].equals("CUSTOMER")) {
                 ctx.json(p);
             } else if (authParts[0].equals("EMPLOYEE")) {
                 p.setPassword("HIDDEN");
@@ -38,23 +41,6 @@ public class PersonController {
 
     }
 
-    public void handleUpdate(Context ctx) {
-        // interpret incoming request
-        String idParam = ctx.pathParam("id");
-        Person personToUpdate = ctx.bodyAsClass(Person.class);
-        int idToUpdate = Integer.parseInt(idParam);
-        personToUpdate.setId(idToUpdate);
-
-        //fulfill the request
-        boolean success = personService.update(personToUpdate);
-
-        //respond to client
-        if (success) {
-            ctx.status(200);
-        } else {
-            ctx.status(400);
-        }
-    }
 
     public void handleUpdatePassword(Context ctx) {
         // interpret incoming request
@@ -74,14 +60,16 @@ public class PersonController {
         if (authHeader != null) {
             if (authParts[0].equals("ADMIN") || authParts[1].equals(userParam)) {
                 success = personService.changePassword(oldpass, newpass, personToUpdate.getId());
+
             } else if (authParts[0].equals("EMPLOYEE")) {
                 ctx.status(401);
                 ctx.result("Only Admins can update another's password");
             }
-
                 //respond to client
                 if (success) {
                     ctx.status(200);
+                    logger.info(personToUpdate.getFirst() + " "+ personToUpdate.getLast() +
+                            "'s password has been updated");
                 } else {
                     ctx.status(400);
                 }
@@ -105,6 +93,8 @@ public class PersonController {
             // prepare response
             if (success) {
                 ctx.status(201);
+                logger.info("New Person: " + firstParam + " " + lastParam +
+                        " has been added to the database.");
             } else {
                 ctx.status(400);
             }
@@ -129,13 +119,15 @@ public class PersonController {
         // prepare response
         if (success) {
             ctx.status(201);
+            logger.info("New Person: " + firstParam + " " + lastParam +
+                    " has been added to the database.");
         } else {
             ctx.status(400);
         }
     }
 
         public void handleDelete (Context ctx){
-            String userParam = ctx.pathParam("username");
+            String userParam = ctx.formParam("username");
             Person p = personService.getByUsername(userParam);
 
             String authHeader = ctx.header("Authorization");
@@ -153,6 +145,8 @@ public class PersonController {
 
             if (success) {
                 ctx.status(200);
+                logger.info("Person: " + p.getFirst() + " " + p.getLast() +
+                        " (" + p.getUsername() + ") has been deleted from database.");
             } else {
                 ctx.status(400);
             }

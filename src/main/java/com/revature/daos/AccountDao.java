@@ -12,7 +12,5 @@ public interface AccountDao {
     public List<Account> getAllAccountsByPerson(Person p);
     public boolean createAccount(String username);
     public List<Account> getAllAccounts();
-
-
-
+    public boolean deleteAccount(Account a);
 }

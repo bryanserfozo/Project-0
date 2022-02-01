@@ -1,5 +1,6 @@
 package com.revature.controllers;
 
+import com.revature.loggingSingleton.LoggingSingleton;
 import com.revature.models.Person;
 import com.revature.services.EncryptionService;
 import com.revature.services.PersonService;
@@ -11,6 +12,7 @@ public class AuthController {
 
     private final PersonService personService = new PersonService();
     private final EncryptionService encryptionService = new EncryptionService();
+    private final LoggingSingleton logger = LoggingSingleton.getLogger();
 
     public void authenticateLogin(Context ctx){
 
@@ -26,14 +28,14 @@ public class AuthController {
             String simpleToken = person.getType()+"-"+ username;
             ctx.header("Authorization", simpleToken);
             ctx.status(200);
+            logger.info(person.getType()+ " " + person.getFirst() + " " + person.getLast() +
+                    " has signed in");
         }
     }
 
     public void authorizeAdminToken(Context ctx) {
         String authHeader = ctx.header("Authorization");
         String[] authParts = authHeader.split("-");
-
-
 
         if (authParts[0].equals("ADMIN")) {
             return;
@@ -61,7 +63,7 @@ public class AuthController {
         }
 
         throw new UnauthorizedResponse("Please log in and try again, if you'd like to register, please" +
-        " go to the /register path and add a post request with your details");
+                " go to the /register path and add a post request with your details");
 
 
     }
@@ -73,20 +75,17 @@ public class AuthController {
 
         String userParam = ctx.pathParam("username");
 
-        try {
-            if (authHeader != null) {
-                if (authParts[1].equals(userParam) && authParts[0].equals("CUSTOMER")) {
-                    return;
-                } else if (authParts[0].equals("ADMIN") || authParts[0].equals("EMPLOYEE")) {
-                    throw new ForbiddenResponse("You are unable to access this page");
-                }
+
+        if (authHeader != null) {
+            if (authParts[1].equals(userParam) && authParts[0].equals("CUSTOMER")) {
+                return;
+            } else if (authParts[0].equals("ADMIN") || authParts[0].equals("EMPLOYEE")) {
+                throw new ForbiddenResponse("You are unable to access this page");
             }
-        } catch (Exception e){
-            throw new UnauthorizedResponse("Please log in and try again, if you'd like to register, please" +
-                    " go to the /register path and add a post request with your details");
         }
-
-
+        throw new UnauthorizedResponse("Please log in and try again, if you'd like to register, please" +
+                " go to the /register path and add a post request with your details");
     }
+
 
 }

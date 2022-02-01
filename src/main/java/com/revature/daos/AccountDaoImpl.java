@@ -136,4 +136,21 @@ public class AccountDaoImpl implements AccountDao{
         return accounts;
     }
 
+    @Override
+    public boolean deleteAccount(Account a) {
+        String sql = "delete from account where id = ?;";
+        try(Connection c = ConnectionUtil.getConnection();
+            PreparedStatement ps = c.prepareStatement(sql)){
+            ps.setInt(1, a.getAccountID());
+            int rowsAffected = ps.executeUpdate();
+
+            if(rowsAffected==1){
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 }

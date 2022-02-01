@@ -29,4 +29,6 @@ public class AccountService {
         return accountDao.createAccount(username);
     }
 
+    public boolean deleteAccount(Account a) {return accountDao.deleteAccount(a);}
+
 }

@@ -1,5 +1,6 @@
 package com.revature.controllers;
 
+import com.revature.loggingSingleton.LoggingSingleton;
 import com.revature.models.Account;
 import com.revature.models.Person;
 import com.revature.services.AccountService;
@@ -12,17 +13,8 @@ public class AccountController {
 
     private final AccountService accountService = new AccountService();
     private final PersonService personService = new PersonService();
+    private final LoggingSingleton logger = LoggingSingleton.getLogger();
 
-    public void handleGetOne(Context ctx){
-        String idParam = ctx.pathParam("id");
-        int accountId = Integer.parseInt(idParam);
-        Account account = accountService.getAccountById(accountId);
-        if(account!=null){
-            ctx.json(account);
-        } else {
-            ctx.status(404);
-        }
-    }
 
     public void handleGetAllByUser(Context ctx){
         String userParam = ctx.pathParam("username");
@@ -48,4 +40,32 @@ public class AccountController {
     }
 
 
+    public void handleDelete(Context ctx) {
+        String idParam = ctx.pathParam("accountId");
+        int accountid = Integer.parseInt(idParam);
+        Account a = accountService.getAccountById(accountid);
+
+        String authHeader = ctx.header("Authorization");
+        String[] authParts = authHeader.split("-");
+
+
+        Person admin = personService.getByUsername(authParts[1]);
+
+        boolean success = false;
+
+
+        if (authParts[0].equals("ADMIN")) {
+            success = accountService.deleteAccount(a);
+        } else if (authParts[0].equals("EMPLOYEE")) {
+            ctx.status(401);
+            ctx.result("Only Admins can delete users");
+        }
+
+        if (success) {
+            ctx.status(202);
+            logger.info("Admin "+ admin.getFirst() + " " + admin.getLast() + " deleted account: " + accountid);
+        } else {
+            ctx.status(400);
+        }
+    }
 }

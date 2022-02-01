@@ -1,5 +1,6 @@
 package com.revature.controllers;
 
+import com.revature.loggingSingleton.LoggingSingleton;
 import com.revature.models.Account;
 import com.revature.models.Transaction;
 import com.revature.models.TransactionType;
@@ -13,6 +14,7 @@ public class TransactionController {
 
     private final TransactionService transactionService = new TransactionService();
     private final AccountService accountService = new AccountService();
+    private final LoggingSingleton logger = LoggingSingleton.getLogger();
 
     public void handleGetAllByID(Context ctx) {
         String idParam = ctx.pathParam("accountId");
@@ -33,10 +35,16 @@ public class TransactionController {
         String typeParam = ctx.formParam("type");
         TransactionType type = null;
         TransactionType type2 = null;
-        if (typeParam .equals("deposit")){ type = TransactionType.DEPOSIT;}
-        else if (typeParam .equals("withdrawal")){ type = TransactionType.WITHDRAWAL;}
-        else if (typeParam.equals("transfer")){type = TransactionType.WITHDRAWAL; type2 = TransactionType.DEPOSIT;}
-        else {success = false;};
+        if (typeParam.equals("deposit")) {
+            type = TransactionType.DEPOSIT;
+        } else if (typeParam.equals("withdrawal")) {
+            type = TransactionType.WITHDRAWAL;
+        } else if (typeParam.equals("transfer")) {
+            type = TransactionType.WITHDRAWAL;
+            type2 = TransactionType.DEPOSIT;
+        } else {
+            success = false;
+        }
 
 
         String amountString = ctx.formParam("amount");
@@ -49,44 +57,43 @@ public class TransactionController {
         Account a = accountService.getAccountById(id);
 
 
-        if (amount >= 0 && (authParts[0].equals("ADMIN"))){
-            if (type.equals(TransactionType.DEPOSIT)){
+        if (amount >= 0 && (authParts[0].equals("ADMIN"))) {
+            if (type.equals(TransactionType.DEPOSIT)) {
                 Transaction t = new Transaction(a, amount, type);
                 success = transactionService.deposit(t);
-            } else if (type.equals(TransactionType.WITHDRAWAL) && type2.equals(null)){
-                if (amount <= a.getBalance()){
+                if (success) {
+                    logger.info("Account " + a.getAccountID() + " has deposited $" + amount);
+                }
+            } else if (type.equals(TransactionType.WITHDRAWAL) && type2.equals(null)) {
+                if (amount <= a.getBalance()) {
                     Transaction t = new Transaction(a, amount, type);
                     success = transactionService.withdraw(t);
-                } else{
-                    success = false;
+                    if (success) {
+                        logger.info("Account " + a.getAccountID() + " has withdrawn $" + amount);
+                    }
                 }
-            } else if (type2 != null){
+            } else if (type2 != null) {
                 String idParam2 = ctx.formParam("secondAccountID");
                 int id2 = Integer.parseInt(idParam2);
 
                 Account b = accountService.getAccountById(id2);
 
-                if(a.getCustomer().getUsername().equals(b.getCustomer().getUsername())){
-                    if (amount <= a.getBalance()){
+                if (a.getCustomer().getUsername().equals(b.getCustomer().getUsername())) {
+                    if (amount <= a.getBalance()) {
                         Transaction t = new Transaction(a, amount, type);
                         Transaction t2 = new Transaction(b, amount, type2);
 
                         boolean success1 = transactionService.withdraw(t);
                         boolean success2 = transactionService.deposit(t2);
 
-                        success = (success2);
-                    }else{
-                        success = false;
+                        success = (success1 && success2);
+                        if (success) {
+                            logger.info("Account " + a.getAccountID() + " has transferred $" + amount +
+                                    " to Account " + b.getAccountID());
+                        }
                     }
-                }else{
-                    success = false;
                 }
-
-            } else{
-                success = false;
             }
-
-
         }
 
         if (success) {
@@ -108,10 +115,17 @@ public class TransactionController {
         String typeParam = ctx.formParam("type");
         TransactionType type = null;
         TransactionType type2 = null;
-        if (typeParam .equals("deposit")){ type = TransactionType.DEPOSIT;}
-        else if (typeParam .equals("withdrawal")){ type = TransactionType.WITHDRAWAL;}
-        else if (typeParam.equals("transfer")){type = TransactionType.WITHDRAWAL; type2 = TransactionType.DEPOSIT;}
-        else {success = false;};
+        if (typeParam.equals("deposit")) {
+            type = TransactionType.DEPOSIT;
+        } else if (typeParam.equals("withdrawal")) {
+            type = TransactionType.WITHDRAWAL;
+        } else if (typeParam.equals("transfer")) {
+            type = TransactionType.WITHDRAWAL;
+            type2 = TransactionType.DEPOSIT;
+        } else {
+            success = false;
+        }
+        ;
 
 
         String amountString = ctx.formParam("amount");
@@ -124,45 +138,43 @@ public class TransactionController {
         Account a = accountService.getAccountById(id);
 
 
-        if (amount >= 0 && (authParts[0].equals("CUSTOMER"))
-                && authParts[1].equals(a.getCustomer().getUsername())){
-            if (type.equals(TransactionType.DEPOSIT)){
+        if (amount >= 0 && (authParts[0].equals("CUSTOMER"))) {
+            if (type.equals(TransactionType.DEPOSIT)) {
                 Transaction t = new Transaction(a, amount, type);
                 success = transactionService.deposit(t);
-            } else if (type.equals(TransactionType.WITHDRAWAL) && type2.equals(null)){
-                if (amount <= a.getBalance()){
+                if (success) {
+                    logger.info("Account " + a.getAccountID() + " has deposited $" + amount);
+                }
+            } else if (type.equals(TransactionType.WITHDRAWAL) && type2.equals(null)) {
+                if (amount <= a.getBalance()) {
                     Transaction t = new Transaction(a, amount, type);
                     success = transactionService.withdraw(t);
-                } else{
-                    success = false;
+                    if (success) {
+                        logger.info("Account " + a.getAccountID() + " has withdrawn $" + amount);
+                    }
                 }
-            } else if (type2 != null){
+            } else if (type2 != null) {
                 String idParam2 = ctx.formParam("secondAccountID");
                 int id2 = Integer.parseInt(idParam2);
 
                 Account b = accountService.getAccountById(id2);
 
-                if(a.getCustomer().getUsername().equals(b.getCustomer().getUsername())){
-                    if (amount <= a.getBalance()){
+                if (a.getCustomer().getUsername().equals(b.getCustomer().getUsername())) {
+                    if (amount <= a.getBalance()) {
                         Transaction t = new Transaction(a, amount, type);
                         Transaction t2 = new Transaction(b, amount, type2);
 
                         boolean success1 = transactionService.withdraw(t);
                         boolean success2 = transactionService.deposit(t2);
 
-                        success = (success2);
-                    }else{
-                        success = false;
+                        success = (success1 && success2);
+                        if (success) {
+                            logger.info("Account " + a.getAccountID() + " has transferred $" + amount +
+                                    " to Account " + b.getAccountID());
+                        }
                     }
-                }else{
-                    success = false;
                 }
-
-            } else{
-                success = false;
             }
-
-
         }
 
         if (success) {
