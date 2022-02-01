@@ -9,16 +9,28 @@ public class Person implements Serializable {
     private String first;
     private String last;
     private String email;
+    private String username;
     private String password;
 
     public Person() {
     }
 
-    public Person(int id, String first, String last, String email, String password) {
-        this.id = id;
+    public Person(Type type, String first, String last, String email, String username, String password) {
+        this.type = type;
         this.first = first;
         this.last = last;
         this.email = email;
+        this.username = username;
+        this.password = password;
+    }
+
+    public Person(int id, Type type, String first, String last, String email, String username, String password) {
+        this.id = id;
+        this.type = type;
+        this.first = first;
+        this.last = last;
+        this.email = email;
+        this.username = username;
         this.password = password;
     }
 
@@ -62,6 +74,14 @@ public class Person implements Serializable {
         this.email = email;
     }
 
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -74,10 +94,13 @@ public class Person implements Serializable {
     public String toString() {
         return "Person{" +
                 "id=" + id +
+                ", type=" + type +
                 ", first='" + first + '\'' +
                 ", last='" + last + '\'' +
                 ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
                 '}';
     }
 }
+

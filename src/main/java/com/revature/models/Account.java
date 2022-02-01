@@ -5,14 +5,19 @@ import java.io.Serializable;
 public class Account implements Serializable {
 
     private int accountID;
-    private int balance;
+    private double balance;
     private Person customer;
 
     public Account() {
     }
 
-    public Account(int accountID, int balance, Person customer) {
+    public Account(int accountID, double balance, Person customer) {
         this.accountID = accountID;
+        this.balance = balance;
+        this.customer = customer;
+    }
+
+    public Account(double balance, Person customer) {
         this.balance = balance;
         this.customer = customer;
     }
@@ -25,11 +30,11 @@ public class Account implements Serializable {
         this.accountID = accountID;
     }
 
-    public int getBalance() {
+    public double getBalance() {
         return balance;
     }
 
-    public void setBalance(int balance) {
+    public void setBalance(double balance) {
         this.balance = balance;
     }
 
