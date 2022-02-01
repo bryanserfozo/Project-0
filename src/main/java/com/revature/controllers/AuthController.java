@@ -58,7 +58,7 @@ public class AuthController {
         }
 
         throw new UnauthorizedResponse("Please log in and try again, if you'd like to register, please" +
-                " go to the /register path and add a post request with your details");
+        " go to the /register path and add a post request with your details");
 
 
     }
@@ -74,7 +74,7 @@ public class AuthController {
             if (authHeader != null) {
                 if (authParts[1].equals(userParam) && authParts[0].equals("CUSTOMER")) {
                     return;
-                } else {
+                } else if (authParts[0].equals("ADMIN") || authParts[0].equals("EMPLOYEE")) {
                     throw new ForbiddenResponse("You are unable to access this page");
                 }
             }

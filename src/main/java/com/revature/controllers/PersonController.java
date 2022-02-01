@@ -1,6 +1,7 @@
 package com.revature.controllers;
 
 import com.revature.models.Person;
+import com.revature.models.Type;
 import com.revature.services.PersonService;
 import io.javalin.http.Context;
 import io.javalin.http.ForbiddenResponse;
@@ -103,6 +104,29 @@ public class PersonController {
                 ctx.status(400);
             }
         }
+
+    public void handleAdminCreate (Context ctx){
+
+        String typeParam = ctx.formParam("type");
+        Type type;
+        if (typeParam.equals("admin")){type = Type.ADMIN;}
+        else if (typeParam.equals("employee")){type = Type.EMPLOYEE;}
+        else {type = Type.CUSTOMER;}
+        String firstParam = ctx.formParam("first");
+        String lastParam = ctx.formParam("last");
+        String emailParam = ctx.formParam("email");
+        String userParam = ctx.formParam("username");
+        String passParam = ctx.formParam("password");
+
+        boolean success = personService.createPerson(type, firstParam, lastParam, emailParam, userParam, passParam);
+
+        // prepare response
+        if (success) {
+            ctx.status(201);
+        } else {
+            ctx.status(400);
+        }
+    }
 
         public void handleDelete (Context ctx){
             String userParam = ctx.pathParam("username");

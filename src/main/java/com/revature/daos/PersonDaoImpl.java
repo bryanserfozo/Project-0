@@ -59,7 +59,7 @@ public class PersonDaoImpl implements PersonDao {
                 person.setLast(rs.getString("last"));
                 person.setEmail(rs.getString("email"));
                 person.setUsername(rs.getString("username"));
-                person.setPassword(rs.getString("password"));
+                person.setPassword("HIDDEN");
                 people.add(person);
             }
         } catch (SQLException e) {

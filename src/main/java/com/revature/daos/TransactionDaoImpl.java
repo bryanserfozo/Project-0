@@ -1,20 +1,23 @@
 package com.revature.daos;
 
-import com.revature.models.Account;
-import com.revature.models.Transaction;
+import com.revature.models.*;
+import com.revature.services.AccountService;
+import com.revature.services.PersonService;
 import com.revature.utils.ConnectionUtil;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TransactionDaoImpl implements TransactionDao{
 
+    private final PersonService personService = new PersonService();
+    private final AccountService accountService = new AccountService();
+
     @Override
     public boolean createTransaction(Transaction trans) {
-        String sql = "insert into transaction (accountid, amount, type, date) " +
-                "values (?, ?, ?, ?)";
+        String sql = "insert into transaction (accountid, amount, type) " +
+                "values (?, ?, ?)";
 
         try (Connection c = ConnectionUtil.getConnection();
              PreparedStatement ps = c.prepareStatement(sql);){
@@ -24,9 +27,6 @@ public class TransactionDaoImpl implements TransactionDao{
 
             ps.setDouble(2, trans.getAmount());
             ps.setInt(3, trans.getType().ordinal());
-
-
-
 
 
             int rowsAffected = ps.executeUpdate();
@@ -53,4 +53,113 @@ public class TransactionDaoImpl implements TransactionDao{
     public Transaction getTransactionByID(int id) {
         return null;
     }
+
+    @Override
+    public List<Transaction> getAllById(int id) {
+        List<Transaction> transactions = new ArrayList<>();
+
+        try (Connection c = ConnectionUtil.getConnection();){
+            PreparedStatement s = c.prepareStatement("select * from transaction where accountid = ?");
+            s.setInt(1, id);
+            ResultSet rs = s.executeQuery();
+            while(rs.next()){
+                Transaction t = new Transaction();
+                t.setTransactionID(rs.getInt("id"));
+                t.setAmount(rs.getDouble("amount"));
+                int customerID = rs.getInt("customerID");
+                if(customerID!=0){
+                    Account account = new Account();
+                    account = accountService.getAccountById(customerID);
+                    t.setAccount(account);
+                }
+                transactions.add(t);
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return transactions;
+    }
+
+    @Override
+    public boolean deposit(Transaction t) {
+        boolean creation = createTransaction(t);
+
+        String sql = "update account set balance = (balance + ?) where id = ?";
+
+        try (Connection c = ConnectionUtil.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setDouble(1, t.getAmount());
+            ps.setInt(2, t.getAccount().getAccountID());
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected == 1 && creation) {
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+
+    }
+
+    @Override
+    public boolean withdraw(Transaction t) {
+        boolean creation = createTransaction(t);
+
+        String sql = "update account set balance = (balance - ?) where id = ?";
+
+        try (Connection c = ConnectionUtil.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setDouble(1, t.getAmount());
+            ps.setInt(2, t.getAccount().getAccountID());
+
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected == 1 && creation) {
+                return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+
+    }
+
+    @Override
+    public List<Transaction> getAll() {
+        String sql = "select * from transaction";
+        List<Transaction> transactions = new ArrayList<>();
+
+        try (Connection c = ConnectionUtil.getConnection();
+             Statement s = c.createStatement();){
+            ResultSet rs = s.executeQuery(sql);
+
+            while(rs.next()) {
+                Transaction t = new Transaction();
+                int id = rs.getInt("id");
+                t.setTransactionID(id);
+
+
+                int typeOrdinal = rs.getInt("type");
+                TransactionType[] types = TransactionType.values();
+                t.setType(types[typeOrdinal]);
+
+                t.setAmount(rs.getDouble("amount"));
+
+                int accountid = rs.getInt("accountid");
+                t.setAccount(accountService.getAccountById(accountid));
+
+                transactions.add(t);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return transactions;
+    }
 }
+
+

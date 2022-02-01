@@ -12,4 +12,13 @@ public interface TransactionDao {
     public List<Transaction> getAllTransactions();
     public List<Transaction> getTransactionsByAccount(Account account);
     public Transaction getTransactionByID(int id);
+
+
+    public List<Transaction> getAllById(int id);
+
+    public boolean deposit(Transaction t);
+
+    public boolean withdraw(Transaction t);
+
+    public List<Transaction> getAll();
 }

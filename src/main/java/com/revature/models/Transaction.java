@@ -11,7 +11,6 @@ public class Transaction implements Serializable {
     private Account account;
     private double amount;
     private TransactionType type;
-    private Date date;
 
     public Transaction() {
     }
@@ -21,19 +20,14 @@ public class Transaction implements Serializable {
         this.account = account;
         this.amount = amount;
         this.type = type;
-        this.date = new Date();
     }
 
     public Transaction(Account account, double amount, TransactionType type) {
         this.account = account;
         this.amount = amount;
         this.type = type;
-        this.date = new Date();
     }
 
-    public Date getDate() {
-        return date;
-    }
 
     public int getTransactionID() {
         return transactionID;

@@ -13,8 +13,7 @@ public class PersonService {
     private final PersonDao personDao = new PersonDaoImpl();
 
 
-    public boolean createPerson(Type t, String first, String last, String username, String password){
-        String email = first + "." + last + "@example.com";
+    public boolean createPerson(Type t, String first, String last, String email, String username, String password){
         email = email.toLowerCase();
         username = username.toLowerCase();
         Person p = new Person(t, first, last, email, username, password);

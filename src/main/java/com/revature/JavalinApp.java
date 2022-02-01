@@ -14,18 +14,19 @@ public class JavalinApp {
     private final AppExceptionHandler appExceptionHandler = new AppExceptionHandler();
     private final AuthController authController = new AuthController();
     private final PendingAccountController pendingAccountController = new PendingAccountController();
+    private final TransactionController transactionController = new TransactionController();
 
     private Javalin app = Javalin.create().routes(()->{
 
-        before("people",authController::authorizeEmployeeToken);
+//        before("/people/*",authController::authorizeEmployeeToken);
         path("people",()->{
             get(personController::handleGetAll);
 
-            before("{username}",authController::authorizeEmployeeToken);
+//            before("{username}",authController::authorizeEmployeeToken);
             path("{username}",()->{
                 get(accountController::handleGetAllByUser);
 
-                before("information",authController::authorizeEmployeeToken);
+//                before("information",authController::authorizeEmployeeToken);
                 path("information",()->{
                     get(personController::handleGetOne);
                     put(personController::handleUpdatePassword);
@@ -36,11 +37,18 @@ public class JavalinApp {
         });
 
 
-        before("accounts",authController::authorizeEmployeeToken);
+//        before("/accounts/*",authController::authorizeEmployeeToken);
         path("accounts", ()->{
             get(accountController::handleGetAll);
 
-            before("pending",authController::authorizeEmployeeToken);
+//            before("{accountId}",authController::authorizeEmployeeToken);
+            path("{accountId}", ()->{
+                get(transactionController::handleGetAllByID);
+                post(transactionController::handleEmployeeTransaction);
+            });
+
+
+//            before("pending",authController::authorizeEmployeeToken);
             path("pending", ()->{
                 get(pendingAccountController::handleGetAll);
                 post(pendingAccountController::handleApproval);
@@ -48,14 +56,23 @@ public class JavalinApp {
         });
 
 
-        before("{username}", authController::authorizeCustomerToken);
-        path("{username}",()->{
-            get(accountController::handleGetAllByUser);
-            put(personController::handleUpdatePassword);
+        before("/user/{username}/*", authController::authorizeCustomerToken);
+        path("user",()->{
+            path("{username}",()-> {
+                get(accountController::handleGetAllByUser);
+                put(personController::handleUpdatePassword);
 
-            before("apply", authController::authorizeCustomerToken);
-            path("apply",()->{
-                post(pendingAccountController::handleCreate);
+                //            before("apply", authController::authorizeCustomerToken);
+                path("apply", () -> {
+                    post(pendingAccountController::handleCreate);
+                });
+
+
+                //            before("{accountId}",authController::authorizeCustomerToken);
+                path("{accountId}", () -> {
+                    get(transactionController::handleGetAllByID);
+                    post(transactionController::handleCustomerTransaction);
+                });
             });
         });
 
