@@ -1,0 +1,15 @@
+
+INFO - 2022-02-02T05:09:42.402 - Account 7 has deposited $50.0
+INFO - 2022-02-02T05:11:14.186 - Account 7 has withdrawn $25.0
+INFO - 2022-02-02T05:12:50.864 - Account 7 has transferred $50.0 to Account 4
+INFO - 2022-02-02T05:19:46.369 - Account 4 has deposited $50.0
+INFO - 2022-02-02T05:20:22.328 - Account 4 has withdrawn $50.0
+INFO - 2022-02-02T05:21:14.015 - Account 4 has transferred $50.0 to Account 7
+INFO - 2022-02-02T05:22:32.289 - Admin Bryan Serfozo deleted account: 4
+INFO - 2022-02-02T05:31:38.761 - Lin Laidler's password has been updated
+INFO - 2022-02-02T05:34:06.692 - Lin Laidler's password has been updated
+INFO - 2022-02-02T05:36:54.275 - New Person: John Cena has been added to the database.
+INFO - 2022-02-02T05:38:16.838 - Person: John Cena (johncena) has been deleted from database.
+INFO - 2022-02-02T05:38:36.207 - ADMIN Bryan Serfozo has signed in
+INFO - 2022-02-02T05:38:47.118 - New Person: Billy Bobjoe has been added to the database.
+INFO - 2022-02-02T05:44:35.990 - Lin Laidler has been denied for a new account.

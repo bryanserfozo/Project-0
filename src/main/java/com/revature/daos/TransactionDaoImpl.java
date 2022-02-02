@@ -56,17 +56,25 @@ public class TransactionDaoImpl implements TransactionDao{
 
     @Override
     public List<Transaction> getAllById(int id) {
+        String sql = "select * from transaction where accountid = ?";
         List<Transaction> transactions = new ArrayList<>();
 
-        try (Connection c = ConnectionUtil.getConnection();){
-            PreparedStatement s = c.prepareStatement("select * from transaction where accountid = ?");
+        try (Connection c = ConnectionUtil.getConnection();
+            PreparedStatement s = c.prepareStatement(sql)){
+
             s.setInt(1, id);
             ResultSet rs = s.executeQuery();
+
             while(rs.next()){
                 Transaction t = new Transaction();
                 t.setTransactionID(rs.getInt("id"));
                 t.setAmount(rs.getDouble("amount"));
-                int customerID = rs.getInt("customerID");
+
+                int typeOrdinal = rs.getInt("type");
+                TransactionType[] types = TransactionType.values();
+                t.setType(types[typeOrdinal]);
+
+                int customerID = rs.getInt("accountid");
                 if(customerID!=0){
                     Account account = new Account();
                     account = accountService.getAccountById(customerID);
