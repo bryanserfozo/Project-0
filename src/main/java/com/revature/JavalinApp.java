@@ -46,18 +46,17 @@ public class JavalinApp {
         path("accounts", ()->{
             get(accountController::handleGetAll);
 
+            before("pending",authController::authorizeEmployeeToken);
+            path("pending", ()->{
+                get(pendingAccountController::handleGetAll);
+                post(pendingAccountController::handleApproval);
+            });
+
             before("{accountId}",authController::authorizeEmployeeToken);
             path("{accountId}", ()->{
                 get(transactionController::handleGetAllByID);
                 post(transactionController::handleEmployeeTransaction);
                 delete(accountController::handleDelete);
-            });
-
-
-            before("pending",authController::authorizeEmployeeToken);
-            path("pending", ()->{
-                get(pendingAccountController::handleGetAll);
-                post(pendingAccountController::handleApproval);
             });
         });
 
@@ -72,18 +71,19 @@ public class JavalinApp {
                     post(pendingAccountController::handleCreate);
                 });
 
-
-                before("{accountID}", authController::authorizeCustomerToken);
-                path("{accountId}", () -> {
-                    get(transactionController::handleGetAllByID);
-                    post(transactionController::handleCustomerTransaction);
-                });
-
                 before("information",authController::authorizeCustomerToken);
                 path("information",()->{
                     get(personController::handleGetOne);
                     put(personController::handleUpdatePassword);
                 });
+
+
+                before("{accountId}", authController::authorizeCustomerToken);
+                path("{accountId}", () -> {
+                    get(transactionController::handleGetAllByID);
+                    post(transactionController::handleCustomerTransaction);
+                });
+
             });
         });
 

@@ -34,7 +34,7 @@ public class TransactionController {
 
         String typeParam = ctx.formParam("type");
         TransactionType type = null;
-        TransactionType type2 = null;
+        TransactionType type2 = TransactionType.WITHDRAWAL;
         if (typeParam.equals("deposit")) {
             type = TransactionType.DEPOSIT;
         } else if (typeParam.equals("withdrawal")) {
@@ -42,8 +42,6 @@ public class TransactionController {
         } else if (typeParam.equals("transfer")) {
             type = TransactionType.WITHDRAWAL;
             type2 = TransactionType.DEPOSIT;
-        } else {
-            success = false;
         }
 
 
@@ -51,7 +49,7 @@ public class TransactionController {
         double amount = Double.parseDouble(amountString);
 
 
-        String idParam = ctx.formParam("accountID");
+        String idParam = ctx.pathParam("accountId");
         int id = Integer.parseInt(idParam);
 
         Account a = accountService.getAccountById(id);
@@ -64,7 +62,7 @@ public class TransactionController {
                 if (success) {
                     logger.info("Account " + a.getAccountID() + " has deposited $" + amount);
                 }
-            } else if (type.equals(TransactionType.WITHDRAWAL) && type2.equals(null)) {
+            } else if (type.equals(TransactionType.WITHDRAWAL) && type2.equals(TransactionType.WITHDRAWAL)) {
                 if (amount <= a.getBalance()) {
                     Transaction t = new Transaction(a, amount, type);
                     success = transactionService.withdraw(t);
@@ -72,7 +70,7 @@ public class TransactionController {
                         logger.info("Account " + a.getAccountID() + " has withdrawn $" + amount);
                     }
                 }
-            } else if (type2 != null) {
+            } else if (type2.equals(TransactionType.DEPOSIT)) {
                 String idParam2 = ctx.formParam("secondAccountID");
                 int id2 = Integer.parseInt(idParam2);
 
@@ -99,9 +97,12 @@ public class TransactionController {
         if (success) {
             ctx.status(201);
         } else {
-            ctx.status(400);
+            if (authParts[0].equals("EMPLOYEE")) {
+                ctx.status(403);
+            } else{
+                ctx.status(400);
+            }
         }
-
 
     }
 
@@ -114,7 +115,7 @@ public class TransactionController {
 
         String typeParam = ctx.formParam("type");
         TransactionType type = null;
-        TransactionType type2 = null;
+        TransactionType type2 = TransactionType.WITHDRAWAL;
         if (typeParam.equals("deposit")) {
             type = TransactionType.DEPOSIT;
         } else if (typeParam.equals("withdrawal")) {
@@ -132,7 +133,7 @@ public class TransactionController {
         double amount = Double.parseDouble(amountString);
 
 
-        String idParam = ctx.formParam("accountID");
+        String idParam = ctx.pathParam("accountId");
         int id = Integer.parseInt(idParam);
 
         Account a = accountService.getAccountById(id);
@@ -145,7 +146,7 @@ public class TransactionController {
                 if (success) {
                     logger.info("Account " + a.getAccountID() + " has deposited $" + amount);
                 }
-            } else if (type.equals(TransactionType.WITHDRAWAL) && type2.equals(null)) {
+            } else if (type.equals(TransactionType.WITHDRAWAL) && type2.equals(TransactionType.WITHDRAWAL)) {
                 if (amount <= a.getBalance()) {
                     Transaction t = new Transaction(a, amount, type);
                     success = transactionService.withdraw(t);
@@ -153,7 +154,7 @@ public class TransactionController {
                         logger.info("Account " + a.getAccountID() + " has withdrawn $" + amount);
                     }
                 }
-            } else if (type2 != null) {
+            } else if (type2.equals(TransactionType.DEPOSIT)) {
                 String idParam2 = ctx.formParam("secondAccountID");
                 int id2 = Integer.parseInt(idParam2);
 
@@ -182,7 +183,6 @@ public class TransactionController {
         } else {
             ctx.status(400);
         }
-
 
     }
 }

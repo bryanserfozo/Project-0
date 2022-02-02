@@ -10,6 +10,7 @@ import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.UnauthorizedResponse;
 
 import java.util.List;
+import java.util.Locale;
 
 public class PersonController {
 
@@ -30,16 +31,23 @@ public class PersonController {
         String authHeader = ctx.header("Authorization");
         String[] authParts = authHeader.split("-");
 
+
         if (authHeader != null) {
-            if (authParts[0].equals("ADMIN") || authParts[0].equals("CUSTOMER")) {
+            if (authParts[0].equals("ADMIN")) {
                 ctx.json(p);
-            } else if (authParts[0].equals("EMPLOYEE")) {
+                ctx.status(200);
+            } else if(authParts[0].equals("CUSTOMER") && authParts[1].equals(userParam)){
+                ctx.json(p);
+                ctx.status(200);
+            }else if (authParts[0].equals("EMPLOYEE")) {
                 p.setPassword("HIDDEN");
                 ctx.json(p);
+                ctx.status(200);
             }
         }
 
     }
+
 
 
     public void handleUpdatePassword(Context ctx) {
@@ -60,21 +68,23 @@ public class PersonController {
         if (authHeader != null) {
             if (authParts[0].equals("ADMIN") || authParts[1].equals(userParam)) {
                 success = personService.changePassword(oldpass, newpass, personToUpdate.getId());
-
-            } else if (authParts[0].equals("EMPLOYEE")) {
-                ctx.status(401);
-                ctx.result("Only Admins can update another's password");
             }
-                //respond to client
-                if (success) {
-                    ctx.status(200);
-                    logger.info(personToUpdate.getFirst() + " "+ personToUpdate.getLast() +
-                            "'s password has been updated");
-                } else {
-                    ctx.status(400);
-                }
-
         }
+        if (success) {
+            ctx.status(200);
+            logger.info(personToUpdate.getFirst() + " "+ personToUpdate.getLast() +
+                    "'s password has been updated");
+        } else {
+            if (authParts[0].equals("EMPLOYEE")) {
+                ctx.status(403);
+                ctx.result("Only Admins can update another's password");
+            } else {
+
+                ctx.status(400);
+        }
+    }
+
+
     }
 
         public void handleCreate (Context ctx){
@@ -128,6 +138,7 @@ public class PersonController {
 
         public void handleDelete (Context ctx){
             String userParam = ctx.formParam("username");
+            userParam = userParam.toLowerCase();
             Person p = personService.getByUsername(userParam);
 
             String authHeader = ctx.header("Authorization");

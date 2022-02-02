@@ -29,7 +29,6 @@ public class AuthTest {
     public void postLoginAttemptCorrect() {
 
         Map<String, String> headers = new HashMap<>();
-
         Map<String, Object> fields = new HashMap<>();
         fields.put("username", "bryanserfozo");
         fields.put("password", "extrasecretpassword");
@@ -39,5 +38,20 @@ public class AuthTest {
                 .fields(fields)
                 .asString();
         assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void postLoginAttemptWrong() {
+
+        Map<String, String> headers = new HashMap<>();
+        Map<String, Object> fields = new HashMap<>();
+        fields.put("username", "bryanserfozo");
+        fields.put("password", "kindasecretpassword");
+
+        HttpResponse response = Unirest.post("http://localhost:8080/login")
+                .headers(headers)
+                .fields(fields)
+                .asString();
+        assertEquals(401, response.getStatus());
     }
 }

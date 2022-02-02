@@ -8,6 +8,8 @@ import io.javalin.http.Context;
 import io.javalin.http.ForbiddenResponse;
 import io.javalin.http.UnauthorizedResponse;
 
+import java.util.Arrays;
+
 public class AuthController {
 
     private final PersonService personService = new PersonService();
@@ -75,17 +77,19 @@ public class AuthController {
 
         String userParam = ctx.pathParam("username");
 
-
-        if (authHeader != null) {
+        if (authParts.length == 2) {
             if (authParts[1].equals(userParam) && authParts[0].equals("CUSTOMER")) {
                 return;
-            } else if (authParts[0].equals("ADMIN") || authParts[0].equals("EMPLOYEE")) {
+            } else if (authParts[0].equals("ADMIN") || authParts[0].equals("EMPLOYEE") || !authParts.equals(userParam)) {
                 throw new ForbiddenResponse("You are unable to access this page");
             }
+            throw new UnauthorizedResponse("Please log in and try again, if you'd like to register, please" +
+                    " go to the /register path and add a post request with your details");
+        } else {
+            throw new UnauthorizedResponse("Please log in and try again, if you'd like to register, please" +
+                    " go to the /register path and add a post request with your details");
         }
-        throw new UnauthorizedResponse("Please log in and try again, if you'd like to register, please" +
-                " go to the /register path and add a post request with your details");
-    }
 
+    }
 
 }

@@ -57,16 +57,19 @@ public class AccountController {
 
         if (authParts[0].equals("ADMIN")) {
             success = accountService.deleteAccount(a);
-        } else if (authParts[0].equals("EMPLOYEE")) {
-            ctx.status(401);
-            ctx.result("Only Admins can delete users");
         }
 
         if (success) {
             ctx.status(202);
             logger.info("Admin "+ admin.getFirst() + " " + admin.getLast() + " deleted account: " + accountid);
         } else {
-            ctx.status(400);
+            if (authParts[0].equals("EMPLOYEE")) {
+                ctx.status(403);
+                ctx.result("Only Admins can delete users");
+            } else{
+                ctx.status(400);
+            }
+
         }
     }
 }
